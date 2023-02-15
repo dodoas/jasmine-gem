@@ -17,7 +17,6 @@ jasmine_files = ['base',
                  File.join('formatters', 'exit_code'),
                  File.join('formatters', 'console'),
                  File.join('formatters', 'multi'),
-                 File.join('runners', 'phantom_js'),
                  File.join('runners', 'chrome_headless'),
                 ]
 

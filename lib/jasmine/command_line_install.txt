@@ -4,7 +4,7 @@ To run the server:
 
 rake jasmine
 
-To run the automated CI task with PhantomJS:
+To run the automated CI task with chrome:
 
 rake jasmine:ci
 
