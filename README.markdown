@@ -127,7 +127,7 @@ end
 
 ## Using headless Chrome
 
-* Add `chrome_remote` as a dependency
+* Add `ferrum` as a dependency
 * In your jasmine_helper.rb:
 ```ruby
 Jasmine.configure do |config|
@@ -137,9 +137,7 @@ end
 
 ### Additional configuration options
 
-* `config.chrome_binary` - to customize which binary to execute
-* `config.chrome_cli_options` - if you know what you're doing you can customize the CLI
-* `config.chrome_startup_timeout` - change the amount of time to wait for chrome to start
+* `config.ferrum_browser_options` - Options passed to Ferrum::Browser.new https://github.com/rubycdp/ferrum#customization
 
 ### On Travis-CI
 

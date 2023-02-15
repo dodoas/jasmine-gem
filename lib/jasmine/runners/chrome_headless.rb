@@ -10,25 +10,20 @@ module Jasmine
         @config = config
         @show_console_log = @config.show_console_log
         @show_full_stack_trace = @config.show_full_stack_trace
-        @cli_options = @config.chrome_cli_options || {}
+        @ferrum_browser_options = @config.ferrum_browser_options || {}
       end
 
       def run
-        chrome_server = IO.popen("\"#{chrome_binary}\" #{cli_options_string}")
-        wait_for_chrome_to_start_debug_socket
-
         begin
-          require "chrome_remote"
+          require "ferrum"
         rescue LoadError => e
-          raise 'Add "chrome_remote" you your Gemfile. To use chromeheadless we require this gem.'
+          raise 'Add "ferrum" you your Gemfile. To use chromeheadless we require this gem.'
         end
 
-        chrome = wait_for { ChromeRemote.client }
-        chrome.send_cmd "Runtime.enable"
-        chrome.send_cmd "Page.navigate", url: jasmine_server_url
+        browser = Ferrum::Browser.new(@ferrum_browser_options)
         result_recived = false
-        run_details = { 'random' => false }
-        chrome.on "Runtime.consoleAPICalled" do |params|
+
+        browser.on("Runtime.consoleAPICalled") do |params|
           if params["type"] == "log"
             if params["args"][0] && params["args"][0]["value"] == "jasmine_spec_result"
               results = JSON.parse(params["args"][1]["value"], :max_nesting => false)
@@ -44,75 +39,21 @@ module Jasmine
             elsif params["args"][0] && params["args"][0]["value"] == "jasmine_done"
               result_recived = true
               run_details = JSON.parse(params["args"][1]["value"], :max_nesting => false)
+              formatter.done(run_details)
             elsif show_console_log
               puts params["args"].map { |e| e["value"] }.join(' ')
             end
           end
         end
 
-        chrome.listen_until {|msg| result_recived }
-        formatter.done(run_details)
-        chrome.send_cmd "Browser.close"
-        Process.kill("INT", chrome_server.pid)
-      end
+        browser.goto(jasmine_server_url)
 
-      def chrome_binary
-        config.chrome_binary || find_chrome_binary
-      end
-
-      def find_chrome_binary
-        path = [
-          "/usr/bin/google-chrome",
-          "/usr/bin/google-chrome-stable",
-          "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-        ].detect { |path|
-          File.file?(path)
-        }
-        raise "No Chrome binary found" if path.nil?
-        path
-      end
-
-      def cli_options_string
-        @cli_options.
-            map {|(k, v)| if v then "--#{k}=#{v}" else "--#{k}" end }.
-            join(' ')
-      end
-
-      def wait_for
-
-
-        puts "new logic"
-
-
-        time = Time.now.to_i
-        result = try_to { yield }
-
-        while !result && Time.now.to_i - time < config.chrome_startup_timeout
-          sleep(0.1)
-          result = try_to { yield }
-        end
-        result
-      end
-
-      def try_to
-        yield
-      rescue
-        nil
-      end
-
-      def wait_for_chrome_to_start_debug_socket
-        open_socket = -> do
-          begin
-            conn = TCPSocket.new('localhost', 9222)
-            conn.close
-            true
-          rescue
-            nil
-          end
+        loop do
+          sleep 1
+          break if result_recived
         end
 
-        message = "Chrome didn't seem to start the webSocketDebugger at port: 9222, timeout #{config.chrome_startup_timeout}sec"
-        raise message unless wait_for(&open_socket)
+        browser.quit
       end
 
       def boot_js

@@ -18,9 +18,7 @@ module Jasmine
     attr_accessor :random
     attr_accessor :phantom_config_script
     attr_accessor :phantom_cli_options
-    attr_accessor :chrome_cli_options
-    attr_accessor :chrome_startup_timeout
-    attr_accessor :chrome_binary
+    attr_accessor :ferrum_browser_options
     attr_accessor :show_full_stack_trace
     attr_accessor :runner_browser
     attr_reader :rack_apps
@@ -46,9 +44,12 @@ module Jasmine
       @random = true
       @phantom_config_script = nil
       @phantom_cli_options = {}
-      @chrome_cli_options = {"no-sandbox" => nil, "headless" => nil, "remote-debugging-port" => 9222}
-      @chrome_startup_timeout = 3
-      @chrome_binary = nil
+      @ferrum_browser_options = {
+        headless: true,
+        browser_options: {
+          'no-sandbox' => nil,
+        }
+      }
       @runner_browser = :phantomjs
 
       @formatters = [Jasmine::Formatters::Console]
