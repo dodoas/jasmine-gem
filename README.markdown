@@ -115,7 +115,6 @@ end
 
 ## Using headless Chrome
 
-* Add `ferrum` as a dependency
 * In your jasmine_helper.rb:
 ```ruby
 Jasmine.configure do |config|

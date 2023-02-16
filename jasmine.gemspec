@@ -50,4 +50,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'jasmine-core', '3.99.0'
   s.add_dependency 'rack', '>= 2.1.4'
   s.add_dependency 'rake'
+  s.add_dependency 'ferrum', '~> 0.13'
 end

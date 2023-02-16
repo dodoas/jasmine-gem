@@ -1,4 +1,5 @@
 require "socket"
+require "ferrum"
 
 module Jasmine
   module Runners
@@ -13,12 +14,6 @@ module Jasmine
       end
 
       def run
-        begin
-          require "ferrum"
-        rescue LoadError => e
-          raise 'Add "ferrum" you your Gemfile. To use chromeheadless we require this gem.'
-        end
-
         browser = Ferrum::Browser.new(@ferrum_browser_options)
         result_recived = false
 
