@@ -14,12 +14,16 @@ module Jasmine
         rails? && Rails.version.to_i == 6
       end
 
+      def rails7?
+        rails? && Rails.version.to_i == 7
+      end
+
       def rails?
         defined?(Rails) && Rails.respond_to?(:version)
       end
 
       def use_asset_pipeline?
-        (rails4? || rails5? || rails6?) &&
+        (rails4? || rails5? || rails6? || rails7?) &&
           Rails.respond_to?(:application) &&
           Rails.application.respond_to?(:assets) &&
           !Rails.application.assets.nil?
